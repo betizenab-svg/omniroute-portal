@@ -7,13 +7,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
     }
 
+    // Requests OmniRoute to create a key restricted ONLY to Combos
     const omniResponse = await fetch(`${process.env.OMNIROUTE_VPS_URL}/api/keys`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OMNIROUTE_ADMIN_TOKEN}`,
       },
-      body: JSON.stringify({ name: `User-${email}` }),
+      body: JSON.stringify({
+        name: `User-${email}`,
+        modelAccessMode: 'restricted',
+        allowedModels: [],
+        allowedCombos: ['combo/*'], // Grants access ONLY to combos and hides raw models
+      }),
     });
 
     if (!omniResponse.ok) {
